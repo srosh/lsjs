@@ -12,19 +12,18 @@ function fsls(path,callbacksArr,exclude) {
 }
 fsls.prototype.runSync = function() {
 	this.ls = fs.readdirSync(this.path);
-	this.migrate();
 	this.apply();
 	return this;
 }
 fsls.prototype.migrate = function() {
 	this.result = [];
 	for (var i in this.ls) {
-		if (this.exclude.indexOf(this.ls[i])>-1) this.result.push(this.path+'/'+this.ls[i]);
+		if (this.exclude.indexOf(this.ls[i])==-1) this.result.push(this.path+'/'+this.ls[i]);
 	}
 };
 fsls.prototype.apply = function(err,files) {
 	if (err) throw err;
-	this.ls = files;
+	if (files) this.ls = files;
 	this.migrate();
 	var cbs = this.cbs.slice(),cb;
 	while (cb = cbs.shift()) {
@@ -34,9 +33,14 @@ fsls.prototype.apply = function(err,files) {
 };
 fsls.prototype.run = function() {
 	fs.readdir(this.path,this.apply.bind(this));
+	return this;
 };
+fsls.isdir = function(filename) {
+	return fs.statSync(filename).isDirectory();
+}
 fsls.read = function(filename) {
 	// callback for reading files
+	if(fsls.isdir(filename)) return '';
 	return fs.readFileSync(filename, 'utf-8');
 }
 fsls.findregex = function(regex) {
