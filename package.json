@@ -1,0 +1,17 @@
+{
+  "name": "fsls",
+  "version": "0.1.0",
+  "description": "utility wrapper for fs.readdir",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "",
+  "keywords": [
+    "fs",
+    "node",
+    "readdir"
+  ],
+  "author": "Soroosh Izadian",
+  "license": "MIT"
+}
