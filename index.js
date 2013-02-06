@@ -62,11 +62,11 @@ fsls.prototype.writeResultsWhenDone = function(topath,namecb) {
 fsls.prototype.writeResults = function(topath,namecb) {
 	if (namecb) {
 		for (var i in this.ls) {
-			fs.writeFileSync(this.result[i],topath.replace(/\/$/,'')+'/'+namecb(this.ls[i]));
+			if(this.result[i]) fs.writeFileSync(topath.replace(/\/$/,'')+'/'+namecb(this.ls[i]),this.result[i]);
 		}
 	} else {
 		for (var i in this.ls) {
-			fs.writeFileSync(this.result[i],topath.replace(/\/$/,'')+'/'+this.ls[i]);
+			if(this.result[i]) fs.writeFileSync(topath.replace(/\/$/,'')+'/'+this.ls[i],this.result[i]);
 		}
 	}
 	return this;
@@ -108,7 +108,7 @@ fsls.replace = function(regex,rep) {
 	return function (text) {
 		if (!text) return text;
 		var result = text;
-		result.replace(regex,withcb);
+		result = result.replace(regex,withcb);
 		return result;
 	}
 }
