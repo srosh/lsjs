@@ -1,9 +1,9 @@
 var fs = require('fs');
-module.id = 'fsls';
+module.id = 'lsjs';
 //todo: add filters
 //todo: extend eventemitter
 //todo: make async
-function fsls(path,callbacksArr,exclude,filters,donecb) {
+function lsjs(path,callbacksArr,exclude,filters,donecb) {
 	if (!path) throw new Error(module.id+' needs a path');
 	this.path = path.replace(/\/$/,'');
 	if (callbacksArr) this.cbs = callbacksArr;
@@ -15,12 +15,12 @@ function fsls(path,callbacksArr,exclude,filters,donecb) {
 	this.done = donecb;
 	return this;
 }
-fsls.prototype.runSync = function() {
+lsjs.prototype.runSync = function() {
 	this.ls = fs.readdirSync(this.path);
 	this.apply();
 	return this;
 }
-fsls.prototype.migrate = function() {
+lsjs.prototype.migrate = function() {
 	this.result = [];
 	var filenames = [];
 	for (var i in this.ls) {
@@ -31,7 +31,7 @@ fsls.prototype.migrate = function() {
 	}
 	this.ls = filenames;
 };
-fsls.prototype.apply = function(err,files) {
+lsjs.prototype.apply = function(err,files) {
 	if (err) throw err;
 	if (files) this.ls = files;
 	this.migrate();
@@ -42,15 +42,15 @@ fsls.prototype.apply = function(err,files) {
 	if (this.done) this.done(this);
 	return this;
 };
-fsls.prototype.run = function() {
+lsjs.prototype.run = function() {
 	fs.readdir(this.path,this.apply.bind(this));
 	return this;
 };
 
-fsls.prototype.writeResultsWhenDone = function(topath,namecb) {
-	var callback = function(fslsobj){
-		fslsobj.writeResults(topath,namecb);
-		if (fslsobj.writedone) fslsobj.writedone(fslsobj);
+lsjs.prototype.writeResultsWhenDone = function(topath,namecb) {
+	var callback = function(lsjsobj){
+		lsjsobj.writeResults(topath,namecb);
+		if (lsjsobj.writedone) lsjsobj.writedone(lsjsobj);
 	}
 	if (this.done) {
 		this.writedone = this.done;
@@ -59,7 +59,7 @@ fsls.prototype.writeResultsWhenDone = function(topath,namecb) {
 	return this;
 }
 
-fsls.prototype.writeResults = function(topath,namecb) {
+lsjs.prototype.writeResults = function(topath,namecb) {
 	if (namecb) {
 		for (var i in this.ls) {
 			if(this.result[i]) fs.writeFileSync(topath.replace(/\/$/,'')+'/'+namecb(this.ls[i]),this.result[i]);
@@ -72,23 +72,23 @@ fsls.prototype.writeResults = function(topath,namecb) {
 	return this;
 }
 
-fsls.makeReplacer = function(path,regex,rep,exclude,filters,donecb) {
+lsjs.makeReplacer = function(path,regex,rep,exclude,filters,donecb) {
 	//rep is callback function for replace;
 	if (!path) throw new Error(module.id+' needs a path');
 	if (!regex) throw new Error('no regex specified');
-	var callbacksArr=[fsls.read,fsls.replace(regex,rep)];
-	return new fsls(path,callbacksArr,exclude,filters,donecb);
+	var callbacksArr=[lsjs.read,lsjs.replace(regex,rep)];
+	return new lsjs(path,callbacksArr,exclude,filters,donecb);
 }
 
-fsls.isdir = function(filename) {
+lsjs.isdir = function(filename) {
 	return fs.statSync(filename).isDirectory();
 }
-fsls.read = function(filename) {
+lsjs.read = function(filename) {
 	// callback for reading files
-	if(fsls.isdir(filename)) return false;
+	if(lsjs.isdir(filename)) return false;
 	return fs.readFileSync(filename, 'utf-8');
 }
-fsls.findregex = function(regex) {
+lsjs.findregex = function(regex) {
 	// makes a callback function for finding the regex in text
 	return function (text) {
 		var result = [],m;
@@ -102,7 +102,7 @@ fsls.findregex = function(regex) {
 		return result;
 	}
 }
-fsls.replace = function(regex,rep) {
+lsjs.replace = function(regex,rep) {
 	var withcb = rep;
 	if (typeof rep=='string') withcb = function (m) { return rep; };
 	return function (text) {
@@ -112,4 +112,4 @@ fsls.replace = function(regex,rep) {
 		return result;
 	}
 }
-module.exports = fsls;
+module.exports = lsjs;

@@ -1,5 +1,5 @@
 {
-  "name": "fsls",
+  "name": "lsjs",
   "version": "0.1.0",
   "description": "utility wrapper for fs.readdir",
   "main": "index.js",
