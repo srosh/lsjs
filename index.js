@@ -25,8 +25,7 @@ lsjs.prototype.migrate = function() {
 	var filenames = [];
 	if (this.filter) {
 		for (var i in this.ls) {
-			var included = (this.exclude.indexOf(this.ls[i])==-1);
-			included = included && this.ls[i].match(this.filter);
+			var included = (this.exclude.indexOf(this.ls[i])==-1) && this.filter.test(this.ls[i]);
 			if (included) {
 				this.result.push(this.path+'/'+this.ls[i]);
 				filenames.push(this.ls[i]);
@@ -43,6 +42,10 @@ lsjs.prototype.migrate = function() {
 	}
 	this.ls = filenames;
 };
+lsjs.prototype.apply = function(err,files) {
+	//make que emmit events
+	return this.applySync(err,files);
+}
 lsjs.prototype.applySync = function(err,files) {
 	if (err) throw err;
 	if (files) this.ls = files;
