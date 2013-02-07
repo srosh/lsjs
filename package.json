@@ -1,6 +1,6 @@
 {
   "name": "lsjs",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "utility wrapper for fs.readdir",
   "main": "index.js",
   "scripts": {

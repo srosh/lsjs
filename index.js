@@ -1,9 +1,8 @@
 var fs = require('fs');
 module.id = 'lsjs';
-//todo: add filters
 //todo: extend eventemitter
 //todo: make async
-function lsjs(path,callbacksArr,exclude,filters,donecb) {
+function lsjs(path,callbacksArr,exclude,filter,donecb) {
 	if (!path) throw new Error(module.id+' needs a path');
 	this.path = path.replace(/\/$/,'');
 	if (callbacksArr) this.cbs = callbacksArr;
@@ -13,25 +12,38 @@ function lsjs(path,callbacksArr,exclude,filters,donecb) {
 	this.ls = [];
 	this.result = [];
 	this.done = donecb;
+	this.filter = filter;
 	return this;
 }
 lsjs.prototype.runSync = function() {
 	this.ls = fs.readdirSync(this.path);
-	this.apply();
+	this.applySync();
 	return this;
 }
 lsjs.prototype.migrate = function() {
 	this.result = [];
 	var filenames = [];
-	for (var i in this.ls) {
-		if (this.exclude.indexOf(this.ls[i])==-1) {
-			this.result.push(this.path+'/'+this.ls[i]);
-			filenames.push(this.ls[i]);
+	if (this.filter) {
+		for (var i in this.ls) {
+			var included = (this.exclude.indexOf(this.ls[i])==-1);
+			included = included && this.ls[i].match(this.filter);
+			if (included) {
+				this.result.push(this.path+'/'+this.ls[i]);
+				filenames.push(this.ls[i]);
+			}
+		}
+	} else {
+		for (var i in this.ls) {
+			var included = (this.exclude.indexOf(this.ls[i])==-1);
+			if (included) {
+				this.result.push(this.path+'/'+this.ls[i]);
+				filenames.push(this.ls[i]);
+			}
 		}
 	}
 	this.ls = filenames;
 };
-lsjs.prototype.apply = function(err,files) {
+lsjs.prototype.applySync = function(err,files) {
 	if (err) throw err;
 	if (files) this.ls = files;
 	this.migrate();
@@ -43,7 +55,7 @@ lsjs.prototype.apply = function(err,files) {
 	return this;
 };
 lsjs.prototype.run = function() {
-	fs.readdir(this.path,this.apply.bind(this));
+	fs.readdir(this.path,this.applySync.bind(this));
 	return this;
 };
 
@@ -72,12 +84,12 @@ lsjs.prototype.writeResults = function(topath,namecb) {
 	return this;
 }
 
-lsjs.makeReplacer = function(path,regex,rep,exclude,filters,donecb) {
+lsjs.makeReplacer = function(path,regex,rep,exclude,filter,donecb) {
 	//rep is callback function for replace;
 	if (!path) throw new Error(module.id+' needs a path');
 	if (!regex) throw new Error('no regex specified');
 	var callbacksArr=[lsjs.read,lsjs.replace(regex,rep)];
-	return new lsjs(path,callbacksArr,exclude,filters,donecb);
+	return new lsjs(path,callbacksArr,exclude,filter,donecb);
 }
 
 lsjs.isdir = function(filename) {
