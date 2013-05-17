@@ -108,8 +108,8 @@ lsjs.findregex = function(regex) {
 	return function (text) {
 		var result = [],m;
 		if (!text) return text;
-		result.text=text;
-		if(regex.global) while (m = text.match(regex)) result.push(m);
+		//result.text=text;
+		if(regex.global) while (m = regex.exec(text)) result.push(m);
 		else {
 			m = text.match(regex);
 			if (m) result.push(m);
